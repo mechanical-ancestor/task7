@@ -87,7 +87,8 @@ namespace auto_aim{
     bool Detector::isLight(const Light& light) const{
         // 长宽比判断
         float ratio = light.length / light.width;
-        if(ratio  < param_.light_params.min_light_ratio || ratio > param_.light_params.max_light_ratio){
+        if(ratio  < param_.light_params.min_light_ratio || 
+           ratio > param_.light_params.max_light_ratio) {
             return false;
         }
         // 倾斜角判断
@@ -177,7 +178,7 @@ namespace auto_aim{
             cv::line(img, left_light.bottom, right_light.bottom, colors, 2);
 
             // 画中心点
-            cv::circle(img, armor.center, 3, colors, -1);
+            cv::circle(img, armor.center, 4, cv::Scalar(255,0,0), -1);
 
             // ================= 标注装甲类型 =================
             std::string armor_text = armor.type == ArmorType::SMALL ? "SMALL" : 
@@ -185,7 +186,8 @@ namespace auto_aim{
 
             cv::Point2f text_pos = armor.center + cv::Point2f(5, -5);
 
-            cv::putText(img, armor_text, text_pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, colors, 2);
+            cv::putText(img, armor_text, text_pos, 
+                        cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255,0,0), 2);
 
             // 左右灯条标记
             cv::putText(img, "L", left_light.center, cv::FONT_HERSHEY_SIMPLEX, 0.4,

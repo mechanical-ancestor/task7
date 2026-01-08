@@ -102,7 +102,7 @@ void ArmorTracker::drawPredict(cv::Mat& img,
     if (img_pts.empty()) return;
 
     // 3. 绘制预测点
-    cv::circle(img, img_pts[0], 6, color, -1);
+    cv::circle(img, img_pts[0], 2, color, -1);
 
     cv::putText(
         img,
