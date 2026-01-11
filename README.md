@@ -198,6 +198,7 @@
 
 #### Bilibili
 - [DR_CAN](https://www.bilibili.com/video/BV1yV411B7DM?spm_id_from=333.788.videopod.sections)
+- [OpenCV实战](https://www.bilibili.com/video/BV1erWmzPE54/?spm_id_from=333.337.search-card.all.click)
 
 #### OpenCV 
 - [OpenCV Tutorials](https://docs.opencv.org/4.x/d9/df8/tutorial_root.html)
