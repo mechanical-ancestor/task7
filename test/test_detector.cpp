@@ -12,23 +12,25 @@ int main()
     // ========== 1. 构造 Detector 参数 ==========
     Detector::Params params;
 
-    // ---- preprocess ----
-    params.prepc_params.binary_threshold = 140;
-    params.prepc_params.enemy_color = EnemyColor::UNKNOWN;
+    params.loadParams("../configs/auto_aim.yaml");
 
-    // ---- light ----
-    params.light_params.min_light_ratio  = 4.0f;
-    params.light_params.max_light_ratio  = 20.0f;
-    params.light_params.max_light_angle  = 30.0f;
+    // // ---- preprocess ----
+    // params.binary_threshold = 135;
+    // params.detect_color = 1;
 
-    // ---- armor ----
-    params.armor_params.min_small_center_dist = 2.0f;
-    params.armor_params.max_small_center_dist = 4.0f;
+    // // ---- light ----
+    // params.light_params.min_ratio  = 4.0f;
+    // params.light_params.max_ratio  = 20.0f;
+    // params.light_params.max_angle  = 30.0f;
 
-    params.armor_params.min_large_center_dist = 4.0f;
-    params.armor_params.max_large_center_dist = 10.0f;
+    // // ---- armor ----
+    // params.armor_params.min_small_center_dist = 2.0f;
+    // params.armor_params.max_small_center_dist = 4.0f;
+
+    // params.armor_params.min_large_center_dist = 4.0f;
+    // params.armor_params.max_large_center_dist = 10.0f;
     
-    params.armor_params.max_angle_diff        = 15.0f;
+    // params.armor_params.max_angle_diff        = 15.0f;
 
     Detector detector(params);
 

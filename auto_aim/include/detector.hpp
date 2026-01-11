@@ -3,63 +3,82 @@
 
 #include <vector>
 #include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 #include "type.hpp"
 
-namespace auto_aim {
+namespace auto_aim 
+{
 class Detector
 {
 public:
-// 检测参数
-struct Params {
-    // 预处理参数
-    struct PreprocessParam {
-        int binary_threshold;      // 二值化阈值
-        EnemyColor enemy_color = EnemyColor::UNKNOWN;
-    } prepc_params;
-    // 灯条参数
-    struct LightParam {
-    float min_light_ratio;     // 最小灯条长宽比
-        float max_light_ratio;     // 最大灯条长宽比
-        float max_light_angle;     // 最大灯条倾斜角
-    } light_params;
-    // 判断装甲板参数
-    struct ArmorParam {
-        float min_small_center_dist;     // 最小 小装甲板 中心距
-        float max_small_center_dist;     // 最大 小装甲板 中心距
-        float min_large_center_dist;     // 最小 大装甲板 中心距
-        float max_large_center_dist;     // 最大 大装甲板 中心距
-        float max_angle_diff;            // 最大灯条角度差
+    struct Params
+    {
+        // // ======= 预处理参数 =========== //
+        // struct PreprocessParam 
+        // {
+        int binary_threshold;       // 二值化阈值
+        // EnemyColor enemy_color = EnemyColor::RED;
+        cv::Size kernel_size = cv::Size(1,1); 
+        int detect_color;
 
-    } armor_params;
+        // } prepc_params;
 
-    bool loadParams(const std::string& path);
-};
+        // ======= 灯条参数 ============ //
+        struct LightParam 
+        {
+            float min_ratio;      // 最小灯条长宽比
+            float max_ratio;      // 最大灯条长宽比
+            float max_angle;      // 最大灯条倾斜角
+        } light_params;
+
+        // ======= 判断装甲板参数 ======= //
+        struct ArmorParam 
+        {
+            float min_small_center_dist;     // 最小 小装甲板 中心距
+            float max_small_center_dist;     // 最大 小装甲板 中心距
+            float min_large_center_dist;     // 最小 大装甲板 中心距
+            float max_large_center_dist;     // 最大 大装甲板 中心距
+            float max_angle_diff;            // 最大灯条角度差
+            // // 装甲板尺度归一化判据
+            // float small_armor_ratio = 0.f;
+            // float large_armor_ratio = 0.f;
+        } armor_params;
+        
+        // ======= 读取配置 ========== //
+        bool loadParams(const std::string& path);
+
+    };
 
 public:
+    // ======= 初始化参数 ========= //
     explicit Detector(const Params& param);
 
-    // 主检测接口
-    std::vector<Armor> detect(const cv::Mat& src);
+    // ======= 主检测接口 ========= //
+    std::vector<Armor> detect(const cv::Mat& input);
 
-    // 绘制调试信息
-    void drawDebug(cv::Mat& img, cv::Scalar colors) const;
+    // ======= 绘制调试信息 ======= //
+    void drawDebug(cv::Mat& img, cv::Scalar color) const;
+
+
 
 private:
-    // 内部处理流程
-    cv::Mat preprocess(const cv::Mat& src);
-    std::vector<Light> findLights(const cv::Mat& bin);
+    // ======= 内部处理流程 ======= //
+    cv::Mat preprocess(const cv::Mat& input);
+    std::vector<Light> findLights(const cv::Mat& rgb_img, const cv::Mat& bin);
     std::vector<Armor> matchLights(const std::vector<Light>& lights);
-
-    // 判定函数
+    bool containLight(
+        const Light & light_1, const Light & light_2, const std::vector<Light> & lights);
+    
+    // ======= 判定函数 ========== //
     bool isLight(const Light& light) const;
-    ArmorType isArmor(const Light& l1, const Light& l2) const;
+    bool isArmor( Armor& armor) const ;
 
 private:
     Params param_;
     
     cv::Mat processed_img_;
-    std::vector<Light> detected_lights_;
-    std::vector<Armor> detected_armors_;
+    std::vector<Light> lights_;
+    std::vector<Armor> armors_;
 };
 
 } // namespace auto_aim

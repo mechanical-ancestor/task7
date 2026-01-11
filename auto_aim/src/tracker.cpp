@@ -101,17 +101,8 @@ void ArmorTracker::drawPredict(cv::Mat& img,
 
     if (img_pts.empty()) return;
 
-    // 3. 绘制预测点
-    cv::circle(img, img_pts[0], 2, color, -1);
+    // 3. 绘制预测点 (不显示文字标签)
+    cv::circle(img, img_pts[0], 2, color, 2);
 
-    cv::putText(
-        img,
-        "Pre",
-        img_pts[0] + cv::Point2f(5, -5),
-        cv::FONT_HERSHEY_SIMPLEX,
-        0.5,
-        color,
-        1
-    );
 }
 } // namespace auto_aim

@@ -35,6 +35,10 @@ int main() {
             CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE
         );
 
+        // if (found) {
+        //     drawChessboardCorners(frame, boardSize, corners, found);
+        // }
+
         imshow("Capture", frame);
         char key = (char)waitKey(30);
 

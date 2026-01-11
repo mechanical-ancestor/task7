@@ -28,8 +28,8 @@ public:
     cv::Point3f getPrePosition() {return pred_position_; }; 
 
 private:
-    cv::Mat x_;   // 6x1 卡尔曼滤波的状态向量 
-    cv::Mat P_;   // 6x6 状态协方差矩阵，表示状态估计的不确定性
+    cv::Mat x_;   // 6x1 卡尔曼滤波的状态向量 [x, y, z, vx, vy, vz]^T
+    cv::Mat P_;   // 6x6 状态协方差矩阵，表示状态估计的不确定性（对角线值越大，不确定性越高） 
     cv::Mat Q_;   // 6x6 过程噪声协方差矩阵，表示模型误差
     cv::Mat R_;   // 3x3 观测噪声协方差矩阵，表示测量误差
 

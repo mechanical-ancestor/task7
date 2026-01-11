@@ -103,15 +103,31 @@
 
 参考[中南开源](https://github.com/CSU-FYT-Vision/FYT2024_vision)，将识别所需的装甲板和灯条属性整合到`type.hpp`文件，即将特征识别与解算甚至将来所需的其他功能共需的类型结合，在把各个功能单需的独立到各自的类，个人认为这样可以使得代码的灵活性与复用性提升。
 
-其次我仅仅是简单完成了`detector.cpp`的一些功能，代码部分还有非常大的可优化空间
+其次我仅仅是简单完成了`detector.cpp`的一些功能，代码部分还有非常大的可优化空间，下面是一些问题
 1. 形态学操作的灵活性不足，即受环境和装甲板距离影响大
 2. 匹配的灯条上下定点易飘，即容易抖动不稳定
-3. 参数不精准
-4. 算法逻辑可能不够严谨，目前仅是可以跑通
+  作者留言：这一点经过参考Chenjunnn的开源，得以解决（可重点查看`auto_aim/include/type.hpp`中Light的修改）如果想更进一步了解可以去看[Chenjunnn的开源](https://github.com/chenjunnn/rm_auto_aim?tab=readme-ov-file)。
+3. 预测不够精准，结果绘制也不够明显
+  修改了`solver.cpp`与`tracker.cpp`使得绘制结果明显,从只绘制中心点改为同时绘制**矩形+中心点**
+4. 参数不精准
+5. 算法逻辑可能不够严谨，目前仅是可以跑通
 
 ##### 位姿解算 *
 
-此部分的逻辑，架构，数据都是参考[同济开源](https://github.com/TongjiSuperPower/sp_vision_25)，对应的知识可以看[OpenCV教程](https://docs.opencv.org/4.x/dc/d2c/tutorial_real_time_pose.html) 
+此部分的**逻辑和架构**都是参考[同济开源](https://github.com/TongjiSuperPower/sp_vision_25)，**数据来源和方法**参考[Chenjunnn的开源](https://github.com/chenjunnn/rm_auto_aim?tab=readme-ov-file)（但此项目并不需要ROS，因此相机坐标的建立并不同）其他对应的知识可以看[OpenCV教程](https://docs.opencv.org/4.x/dc/d2c/tutorial_real_time_pose.html)
+
+相机坐标轴：
+- 原点：相机的光心（镜头中心）
+- 坐标轴方向：
+  - Z轴：沿光轴方向，指向前方（也就是物体在相机前方时，Z > 0）
+  - X轴：水平向右
+  - Y轴：竖直向下
+装甲板坐标轴：
+- 原点：装甲板中心
+- 坐标轴方向：
+  - Z轴：Down(竖直向下)
+  - X轴：Forward(垂直与装甲板平面)
+  - Y轴：Right(右)
 
 ##### 卡尔曼滤波 *
 
@@ -129,7 +145,7 @@
 
 - 参数
 
-1. 状态矩阵 x_ (6*1) 
+1. 状态矩阵 x_ (6*1)
 2. 测量矩阵 z (3*1)
 3. 状态转移矩阵 F(6*6)
 
@@ -143,10 +159,13 @@
 [ 0 ] /*v_y*/             [0  0  0  0  1  0 ] 
 [ 0 ] /*v_z*/             [0  0  0  0  0  1 ] 
 ```
+
 4. 过程噪声协方差矩阵 Q_ (6*6)
 5. 观测噪声协方差矩阵 R_ (3*3)
 6. 转换矩阵 H (3*6)
+
 用于将 6*1的状态矩阵 转换为 3*1的测量矩阵的形式
+
 ```cpp
  [1  0  0  0  0  0 ]     [1  0  0 ]     [1  0  0  0  0  0]
  [0  1  0  0  0  0 ]     [0  1  0 ]     [0  1  0  0  0  0]
@@ -169,3 +188,16 @@
     - x_ = x_ + K * y  (6x1 = 6x1 + 6x3 * 3x1)
   - 后验误差协方差矩阵
     - P_ = (I - K * H) * P_  (6x6 = (6x6 - 6x3 * 3x6) * 6x6)
+
+### 感谢
+
+#### GitHUb
+- [Chenjunnn开源](https://github.com/chenjunnn/rm_auto_aim?tab=readme-ov-file)
+- [同济开源](https://github.com/TongjiSuperPower/sp_vision_25)
+- [中南开源](https://github.com/CSU-FYT-Vision/FYT2024_vision)
+
+#### Bilibili
+- [DR_CAN](https://www.bilibili.com/video/BV1yV411B7DM?spm_id_from=333.788.videopod.sections)
+
+#### OpenCV 
+- [OpenCV Tutorials](https://docs.opencv.org/4.x/d9/df8/tutorial_root.html)

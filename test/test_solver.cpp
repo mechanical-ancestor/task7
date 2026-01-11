@@ -12,26 +12,27 @@ using namespace auto_aim;
 
 int main() {
     // ========== 初始化检测器 ==========
-    Detector::Params detector_params;
-    detector_params.prepc_params.binary_threshold = 140; 
-    detector_params.prepc_params.enemy_color = EnemyColor::UNKNOWN;
+    Detector::Params params;
+    // detector_params.binary_threshold = 140; 
+    // detector_params.detect_color = 1;
 
-    detector_params.light_params.min_light_ratio  = 4.0f;
-    detector_params.light_params.max_light_ratio  = 20.0f;
-    detector_params.light_params.max_light_angle  = 30.0f;
+    // detector_params.light_params.min_ratio  = 4.0f;
+    // detector_params.light_params.max_ratio  = 20.0f;
+    // detector_params.light_params.max_angle  = 30.0f;
 
-    detector_params.armor_params.min_small_center_dist = 1.5f;
-    detector_params.armor_params.max_small_center_dist = 4.0f;
-    detector_params.armor_params.min_large_center_dist = 4.0f;
-    detector_params.armor_params.max_large_center_dist = 15.0f;
-    detector_params.armor_params.max_angle_diff        = 15.0f;
+    // detector_params.armor_params.min_small_center_dist = 1.5f;
+    // detector_params.armor_params.max_small_center_dist = 4.0f;
+    // detector_params.armor_params.min_large_center_dist = 4.0f;
+    // detector_params.armor_params.max_large_center_dist = 15.0f;
+    // detector_params.armor_params.max_angle_diff        = 15.0f;
+    params.loadParams("../configs/auto_aim.yaml");
 
-    Detector detector(detector_params);
+    Detector detector(params);
     cout << "[INFO] Detector initialized successfully!" << endl;
 
     // ========== 初始化解算 ==========
-    string calib_path = "../configs/camera_calib.yaml";
-    Solver solver(calib_path);
+    string path = "../configs/auto_aim.yaml";
+    Solver solver(path);
 
     // ========== 打开相机 ==========
     VideoCapture cap(0, CAP_V4L2);
@@ -52,16 +53,20 @@ int main() {
         // ========== 检测+解算 ==========
         vector<Armor> armors = detector.detect(frame);
         int solved_count = 0;
+
         for (auto& armor : armors) {
             if (solver.solve(armor)) {
                 solved_count++;
+                
+                cout << "Distance to image center (px): " <<
+                    solver.calculateDistanceToCenter(armor.center) << endl;
                 // cout << "Solved_count : " << solved_count << endl; // test
             }
         }
 
         // ========== 绘制+显示 ==========
         detector.drawDebug(frame, Scalar(0,255,0));
-        solver.printSolverDebug(frame, armors);
+        // solver.printSolverDebug(frame, armors);
         
         // 显示状态
         string status_text = "Detected: " + to_string(armors.size()) +
