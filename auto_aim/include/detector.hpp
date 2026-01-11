@@ -14,14 +14,9 @@ public:
     struct Params
     {
         // // ======= 预处理参数 =========== //
-        // struct PreprocessParam 
-        // {
         int binary_threshold;       // 二值化阈值
-        // EnemyColor enemy_color = EnemyColor::RED;
         cv::Size kernel_size = cv::Size(1,1); 
         int detect_color;
-
-        // } prepc_params;
 
         // ======= 灯条参数 ============ //
         struct LightParam 
@@ -39,9 +34,6 @@ public:
             float min_large_center_dist;     // 最小 大装甲板 中心距
             float max_large_center_dist;     // 最大 大装甲板 中心距
             float max_angle_diff;            // 最大灯条角度差
-            // // 装甲板尺度归一化判据
-            // float small_armor_ratio = 0.f;
-            // float large_armor_ratio = 0.f;
         } armor_params;
         
         // ======= 读取配置 ========== //

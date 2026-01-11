@@ -11,18 +11,12 @@ Detector::Detector(const Params& param) : param_(param) {}
 // 主检测接口
 std::vector<Armor> Detector::detect(const cv::Mat& input) {
     if (input.empty()) return {};
-    // std::cout << "调试 1 通过" << std::endl;
 
     processed_img_ = preprocess(input);
-    // std::cout << "调试 2 通过" << std::endl;
     
     lights_ = findLights(input, processed_img_);
-    // detected_lights_  = lights;
-    // std::cout << "调试 3 通过" << std::endl;
     
     armors_ = matchLights(lights_);
-    // detected_armors_  = armors;
-    // std::cout << "调试 4 通过" << std::endl;
     
     return armors_;
 }
@@ -34,86 +28,16 @@ cv::Mat Detector::preprocess(const cv::Mat& rgb_img) {
     cv::cvtColor(rgb_img, gray, cv::COLOR_BGR2GRAY);
 
     cv::threshold(gray, bin, param_.binary_threshold, 255, cv::THRESH_BINARY);
-    // imshow("BIN", bin);
     cv::Mat kernel = 
         cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3));
 
     // 腐蚀 膨胀
     cv::erode(bin, morph, kernel);
     cv::dilate(morph, morph, kernel);
-    // imshow("MORPH", morph);
     
     return morph;
-    // return bin;
 }
 
-// // 寻找灯条
-// std::vector<Light> Detector::findLights(const cv::Mat& bin){
-//     std::vector<Light> detected_lights;
-//     std::vector<std::vector<cv::Point>> contours; 
-    
-//     cv::findContours(bin, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-    
-//     for(const auto& contour : contours){
-//         cv::RotatedRect rect = cv::minAreaRect(contour);
-        
-//         Light light;
-        
-//         light.rect   = rect;
-//         light.center = rect.center;
-//         light.length = std::max(rect.size.width, rect.size.height);
-//         light.width  = std::min(rect.size.width, rect.size.height);
-
-//         cv::Point2f vertices[4];
-//         rect.points(vertices);
-        
-//          // 找到最长边（相邻点）
-//         float max_len = 0.f;
-//         cv::Point2f v1, v2;
-//         for (int i = 0; i < 4; ++i) {
-//             cv::Point2f p1 = vertices[i];
-//             cv::Point2f p2 = vertices[(i + 1) % 4];
-//             float len = cv::norm(p1 - p2);
-//             if (len > max_len) {
-//                 max_len = len;
-//                 v1 = p1;
-//                 v2 = p2;
-//             }
-//         }
-
-//         // 统一方向(top在上, bottom在下)
-//         if (v1.y < v2.y) {
-//             light.top    = v1;
-//             light.bottom = v2;
-//         } else {
-//             light.top    = v2;
-//             light.bottom = v1;
-//         }
-//         // 角度
-//         cv::Point2f d = light.top - light.bottom;
-//         light.angle = std::abs(std::atan2(d.x, d.y)) * 180.0f / CV_PI;
-
-//         if (!isLight(light))   continue;
-
-//         detected_lights.push_back(light);
-//     }
-//     return detected_lights;
-// } 
-
-// // 判定是否为灯条
-// bool Detector::isLight(const Light& light) const{
-//     // 长宽比判断
-//     float ratio = light.length / light.width;
-//     if(ratio < param_.light_params.min_light_ratio || 
-//        ratio > param_.light_params.max_light_ratio ){
-//         return false;
-//     }
-//     // 倾斜角判断
-//     if(light.angle > param_.light_params.max_light_angle){
-//         return false;
-//     }
-//     return true;
-// }
 // =========== 寻找灯条并初始化灯条 ========= //
 std::vector<Light> Detector::findLights(const cv::Mat& rgb_img, const cv::Mat& bin)
 {
@@ -127,26 +51,18 @@ std::vector<Light> Detector::findLights(const cv::Mat& rgb_img, const cv::Mat& b
     for(const auto& contour : contours){
         cv::RotatedRect r_rect = cv::minAreaRect(contour);
         Light light(r_rect);
-        
-        // light.rect   = rect;
-        // light.center = rect.center;
-        // light.length = std::max(rect.size.width, rect.size.height);
-        // light.width  = std::min(rect.size.width, rect.size.height);
-        // light.angle  = rect.angle;
 
         if (!isLight(light))   continue;
         
         auto rect = light.boundingRect();
-        if (  // Avoid assertion failed
-        0 <= rect.x && 0 <= rect.width && rect.x + rect.width <= rgb_img.cols && 
-        0 <= rect.y &&0 <= rect.height && rect.y + rect.height <= rgb_img.rows )
-        {
+        // Avoid assertion failed
+        if (0 <= rect.x && 0 <= rect.width && rect.x + rect.width <= rgb_img.cols && 
+            0 <= rect.y &&0 <= rect.height && rect.y + rect.height <= rgb_img.rows){
             int sum_red = 0, sum_blue = 0;
             auto roi = rgb_img(rect);
             for(int i = 0; i < roi.rows; i++){
                 for(int j = 0; j < roi.cols; j++){
                     if (cv::pointPolygonTest(contour, cv::Point2f(j + rect.x, i + rect.y), false) >= 0) {
-                        // if point is inside contour
                         sum_blue += roi.at<cv::Vec3b>(i, j)[0];
                         sum_red  += roi.at<cv::Vec3b>(i, j)[2];
                     }
@@ -155,31 +71,6 @@ std::vector<Light> Detector::findLights(const cv::Mat& rgb_img, const cv::Mat& b
             light.color = sum_red > sum_blue ? RED : BLUE;
             detected_lights.emplace_back(light);
         }
-        // cv::Point2f pts[4]; // 灯条矩形的四个角点
-        // rect.points(pts);
-        
-        // float max_dist = 0.0f;
-        // cv::Point2f p1, p2;
-        // for (int i = 0; i < 4; ++i) {
-        //     for (int j = i + 1; j < 4; ++j) {
-        //         float dist = cv::norm(pts[i] - pts[j]);
-        //         if (dist > max_dist) {
-        //             max_dist = dist;
-        //             p1 = pts[i];
-        //             p2 = pts[j];
-        //         }
-        //     }
-        // }
-        // // 统一 top 在上
-        // if (p1.y < p2.y) {
-        //     light.top    = p1;
-        //     light.bottom = p2;
-        // } else {
-        //     light.top    = p2;
-        //     light.bottom = p1;
-        // }
-        // detected_lights.push_back(light);   
-
     }
     return detected_lights;
 } 
@@ -194,8 +85,6 @@ bool Detector::isLight(const Light& light) const
         return false;
     }
     // 倾斜角判断
-    // cv::Point2f dir = light.top - light.bottom;
-    // float angle = std::abs(std::atan2(dir.x, dir.y)) * 180 / CV_PI; // atan2返回(rad) * 180/pi
     if(light.angle > param_.light_params.max_angle){
         return false;
     }
@@ -214,22 +103,6 @@ std::vector<Armor> Detector::matchLights(const std::vector<Light>& lights)
 
             if (l1.color != param_.detect_color ||
                 l2.color != param_.detect_color ) continue;
-            
-            // ArmorType type = isArmor(l1, l2);
-            // if(type == ArmorType::UNKNOWN)
-            //     continue;
-
-            // Armor armor;
-            // armor.left_light  = l1.center.x < l2.center.x ? l1 : l2;
-            // armor.right_light = l1.center.x < l2.center.x ? l2 : l1;
-            // armor.center = (l1.center + l2.center) * 0.5f;
-            // armor.type   = type;
-
-            // armor.points = {
-            //     armor.left_light.top,    // 左上
-            //     armor.right_light.top,   // 右上
-            //     armor.right_light.bottom,// 右下
-            //     armor.left_light.bottom  // 左下
 
             if(containLight(l1, l2, lights)){
                 continue;
@@ -291,8 +164,7 @@ bool Detector::isArmor( Armor& armor) const
     } else {
         return false;
     }
-    // armor.type = (center_dist >= param_.armor_params.min_large_center_dist && 
-    //               center_dist <= param_.armor_params.max_large_center_dist) ? LARGE : SMALL;
+    
     return true;
 }
 

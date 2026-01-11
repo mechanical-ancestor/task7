@@ -14,24 +14,6 @@ int main()
 
     params.loadParams("../configs/auto_aim.yaml");
 
-    // // ---- preprocess ----
-    // params.binary_threshold = 135;
-    // params.detect_color = 1;
-
-    // // ---- light ----
-    // params.light_params.min_ratio  = 4.0f;
-    // params.light_params.max_ratio  = 20.0f;
-    // params.light_params.max_angle  = 30.0f;
-
-    // // ---- armor ----
-    // params.armor_params.min_small_center_dist = 2.0f;
-    // params.armor_params.max_small_center_dist = 4.0f;
-
-    // params.armor_params.min_large_center_dist = 4.0f;
-    // params.armor_params.max_large_center_dist = 10.0f;
-    
-    // params.armor_params.max_angle_diff        = 15.0f;
-
     Detector detector(params);
 
     // ========== 2. 打开相机 ==========

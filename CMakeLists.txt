@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 第三方依赖（只在顶层找）
-find_package(OpenCV REQUIRED)
-find_package(Eigen3 REQUIRED)
+find_package(OpenCV   REQUIRED)
+find_package(Eigen3   REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
 # 子模块

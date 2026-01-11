@@ -1,11 +1,10 @@
-#ifndef AUTO_AIM_TARGET_HPP
-#define AUTO_AIM_TARGET_HPP
+#ifndef AUTO_AIM_TRACKER_HPP
+#define AUTO_AIM_TRACKER_HPP
 
 #include <opencv2/core.hpp>
 #include <chrono>
 
 namespace auto_aim {
-
 class ArmorTracker {
 public:
     ArmorTracker();
@@ -39,4 +38,4 @@ private:
 };
 
 } // namespace auto_aim
-#endif
+#endif // AUTO_AIM_TRACKER_HPP

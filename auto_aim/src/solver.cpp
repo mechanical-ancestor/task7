@@ -23,7 +23,6 @@ Solver::Solver(const std::string& path)
 
     } catch (const std::exception& e) {
         std::cerr << "[ERROR] Solver init failed: " << e.what() << std::endl;
-        // 初始化失败，后续调用自动跳过
         return;
     }
     // Unit: m
@@ -33,7 +32,6 @@ Solver::Solver(const std::string& path)
     constexpr double large_half_z = LARGE_ARMOR_HEIGHT / 2.0 ;
 
 
-    // coordina: x right, y down, z forward
     small_armor_pts_ = {
         {0, -small_half_y ,  small_half_z },
         {0,  small_half_y ,  small_half_z },
@@ -47,21 +45,6 @@ Solver::Solver(const std::string& path)
         {0,  large_half_y , -large_half_z },
         {0, -large_half_y , -large_half_z }
     };
-    // small_armor_pts_ = {
-    //     {0,  SMALL_W / 2,  LIGHTBAR / 2},
-    //     {0, -SMALL_W / 2,  LIGHTBAR / 2},
-    //     {0, -SMALL_W / 2, -LIGHTBAR / 2},
-    //     {0,  SMALL_W / 2, -LIGHTBAR / 2}
-    // };
-
-    // big_armor_pts_ = {
-    //     {0,  BIG_W / 2,  LIGHTBAR / 2},
-    //     {0, -BIG_W / 2,  LIGHTBAR / 2},
-    //     {0, -BIG_W / 2, -LIGHTBAR / 2},
-    //     {0,  BIG_W / 2, -LIGHTBAR / 2}
-    // };
-
-    // std::cout << "[INFO] Solver initialized successfully!" << std::endl;
 }
 // ============= 解算 ================ //
 bool Solver::solve(Armor& armor) const { 
@@ -71,20 +54,13 @@ bool Solver::solve(Armor& armor) const {
     }
     std::vector<cv::Point2f> image_armor_points;
     
-    // Fill in image points
-    // image_armor_points.emplace_back(armor.left_light.bottom);
     image_armor_points.emplace_back(armor.left_light.top);
     image_armor_points.emplace_back(armor.right_light.top);
     image_armor_points.emplace_back(armor.right_light.bottom);
     image_armor_points.emplace_back(armor.left_light.bottom);
 
-    // if (armor.points.empty() || armor.points.size() != 4) {
-    //     std::cout << armor.points.size() << std::endl; 
-    //     return false; 
-    // }
-
     auto& object_pts = (armor.type == ArmorType::LARGE) ? big_armor_pts_ : small_armor_pts_;
-    cv::Vec3d rvec, tvec; // Rotation_vector , Translation_vector  armor 相对于 camera  单位 m 
+    cv::Vec3d rvec, tvec; // armor 相对于 camera  单位 m 
     bool ok = cv::solvePnP(
         object_pts,
         image_armor_points,
@@ -132,34 +108,11 @@ void Solver::projectArmorPoints(const Armor& armor,
     }
 }
 
-
-// void Solver::printSolverDebug(cv::Mat& frame, const std::vector<Armor>& armors) {
-//     if (frame.empty()) return;
-
-//     for (const auto& armor : armors) {
-//         if (armor.points.empty() || armor.points.size() != 4) {
-//             continue;
-//         }
-
-//         // for (int i = 0; i < 4; ++i) {
-//         //     cv::line(frame, armor.points[i], armor.points[(i+1)%4], cv::Scalar(0, 255, 0), 2);
-//         // }
-
-//         // cv::circle(frame, armor.center, 4, cv::Scalar(0, 0, 255), -1);
-//         // std::cout << "Test 1 pass " << std::endl; 
-
-//         std::cout << "( " 
-//         << armor.position.x << ", " 
-//         << armor.position.y << ", " 
-//         << armor.position.z << " )" 
-//         << std::endl;        
-//     }
-// }
-
 float Solver::calculateDistanceToCenter(const cv::Point2f & image_point)
 {
     float cx = camera_matrix_.at<double>(0, 2);
     float cy = camera_matrix_.at<double>(1, 2);
     return cv::norm(image_point - cv::Point2f(cx, cy));
 }
+
 } // namespace auto_aim

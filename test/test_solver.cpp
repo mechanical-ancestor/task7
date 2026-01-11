@@ -13,18 +13,6 @@ using namespace auto_aim;
 int main() {
     // ========== 初始化检测器 ==========
     Detector::Params params;
-    // detector_params.binary_threshold = 140; 
-    // detector_params.detect_color = 1;
-
-    // detector_params.light_params.min_ratio  = 4.0f;
-    // detector_params.light_params.max_ratio  = 20.0f;
-    // detector_params.light_params.max_angle  = 30.0f;
-
-    // detector_params.armor_params.min_small_center_dist = 1.5f;
-    // detector_params.armor_params.max_small_center_dist = 4.0f;
-    // detector_params.armor_params.min_large_center_dist = 4.0f;
-    // detector_params.armor_params.max_large_center_dist = 15.0f;
-    // detector_params.armor_params.max_angle_diff        = 15.0f;
     params.loadParams("../configs/auto_aim.yaml");
 
     Detector detector(params);

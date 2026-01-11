@@ -16,12 +16,10 @@ public:
     
     // ======= PnP解算 ================= //
     bool solve(Armor& armor) const;
+
     // ======= 计算距离 ================= //
     float calculateDistanceToCenter(const cv::Point2f& img_points);
 
-    // // ======= 绘制解算结果 ============= //
-    // void printSolverDebug(cv::Mat& frame, const std::vector<Armor>& armors);
-    
     // ======= 得到参数的接口 =========== // 
     const cv::Mat& getCameraMatrix() const { return camera_matrix_; }
     const cv::Mat& getDistCoeffs() const { return dist_coeffs_; }
@@ -40,7 +38,6 @@ public:
 
 private:
     // ======= 装甲板参数 ============== // m   
-    // static constexpr float LIGHTBAR = 56e-3f; 
     static constexpr float SMALL_ARMOR_WIDTH  = 135e-3f;
     static constexpr float SMALL_ARMOR_HEIGHT = 55e-3f;
     static constexpr float LARGE_ARMOR_WIDTH  = 230e-3f;

@@ -18,29 +18,29 @@ using namespace cv;
 using namespace io;
 using namespace auto_aim;
 
-static volatile std::sig_atomic_t g_stop_flag = 0; // 全局标志
+static volatile sig_atomic_t g_stop_flag = 0; // 全局标志
 static void signal_handler(int) { g_stop_flag = 1; } // 信号
 
 int main(int argc, char** argv) 
 {
     int cam_id = 0;
-    std::string params_path = "../configs/auto_aim.yaml";
-    std::string serial_port = "/dev/ttyUSB0";
+    string params_path = "../configs/auto_aim.yaml";
+    string serial_port = "/dev/ttyUSB0";
     int baudrate = 115200;
 
-    if (argc > 1) cam_id = std::stoi(argv[1]);
+    if (argc > 1) cam_id = stoi(argv[1]);
     if (argc > 2) params_path = argv[2];
     if (argc > 3) serial_port = argv[3];
 
     // Register signal handler for graceful exit
-    std::signal(SIGINT, signal_handler);
+    signal(SIGINT, signal_handler);
 
     // ================ 1. 初始化 ================ //
     
     // ----- 1.1 USBCamera ----- //
     USBCamera camera(cam_id);
     if(!camera.open()){
-        std::cerr << "[ERROR] Camera open failed (id=" << cam_id << ")" << std::endl;
+        cerr << "[ERROR] Camera open failed (id=" << cam_id << ")" << endl;
         return -1;
     }
     cout << "[INFO] Camera initialized !" << endl;
@@ -48,14 +48,13 @@ int main(int argc, char** argv)
     // ----- 1.2 Detector ----- //
     Detector::Params params;
     if(!params.loadParams(params_path)) {
-        std::cerr << "[ERROR] Failed to load detector params: " << params_path << std::endl;
+        cerr << "[ERROR] Failed to load detector params: " << params_path << endl;
         return -1;
     }
     Detector detector(params);
     cout << "[INFO] Detector initialized !" << endl;
 
     // ----- 1.3 Solver ----- //
-    // string s_path = "../configs/camera_calib.yaml";
     Solver solver(params_path);
     cout << "[INFO] Solver initialized." << endl;
 
@@ -105,20 +104,19 @@ int main(int argc, char** argv)
         double dt = 0.03; // 30 ms
         tracker.predict(dt); // 预测
 
-        // If we have a best armor and previous rvec, project predicted 3D position to image
         if (best_armor != nullptr) {
-            cv::Point3f pred_pos = tracker.getPrePosition();
-            // Build predicted tvec from predicted position
-            cv::Vec3d pred_tvec(static_cast<double>(pred_pos.x),
-                                static_cast<double>(pred_pos.y),
-                                static_cast<double>(pred_pos.z));
-            std::vector<cv::Point2f> pred_img_pts;
-            // use last known rvec (assume rotation changes slowly)
+            Point3f pred_pos = tracker.getPrePosition();
+            
+            Vec3d pred_tvec(static_cast<double>(pred_pos.x),
+                            static_cast<double>(pred_pos.y),
+                            static_cast<double>(pred_pos.z));
+            vector<Point2f> pred_img_pts;
+
             solver.projectArmorPoints(*best_armor, best_armor->rvec, pred_tvec, pred_img_pts);
             if (pred_img_pts.size() == 4) {
                 for (int i = 0; i < 4; ++i) {
-                    cv::line(frame, pred_img_pts[i], pred_img_pts[(i+1)%4], cv::Scalar(0,255,255), 2);
-                    cv::circle(frame, pred_img_pts[i], 3, cv::Scalar(0,255,255), -1);
+                    line(frame, pred_img_pts[i], pred_img_pts[(i+1)%4], Scalar(0,255,255), 2);
+                    circle(frame, pred_img_pts[i], 3, Scalar(0,255,255), -1);
                 }
             }
         }
@@ -161,7 +159,7 @@ int main(int argc, char** argv)
     // ============ 3. 释放 ============= //
     if (serial.isOpened()) serial.close();
     if (camera.isOpened()) camera.release();
-    cv::destroyAllWindows();
+    destroyAllWindows();
 
     cout << "[INFO] Program terminated." << endl;
     return 0;

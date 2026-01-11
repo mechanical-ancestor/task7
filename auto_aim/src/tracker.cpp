@@ -105,4 +105,5 @@ void ArmorTracker::drawPredict(cv::Mat& img,
     cv::circle(img, img_pts[0], 2, color, 2);
 
 }
+
 } // namespace auto_aim
