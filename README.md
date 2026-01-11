@@ -141,7 +141,7 @@
   - 求逆：S.inv()
   - 0矩阵： zeros()
   - 单位矩阵： eye()
-  - 索引： at<T>(row, col)        
+  - 索引： at<T>(row, col)
 
 - 参数
 
