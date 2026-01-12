@@ -93,9 +93,9 @@
 
 - `io/`：目前仅实现了**USB相机**和**电脑间通讯**的功能，如果日后还有需求可以增加相应的内容
 - `calibration/`：用于**相机标定**的独立功能区，想了解详情可以到文件夹里`README.md`查看
-- `auto_aim`：实现初步**自瞄**核心的功能区，下面将会简单介绍
-- `test`：用来放测试文件
-- `src`：用来放主程序源文件
+- `auto_aim/`：实现初步**自瞄**核心的功能区，下面将会简单介绍
+- `test/`：用来放测试文件
+- `src/`：用来放主程序源文件
 
 #### 自瞄核心
 
@@ -103,7 +103,7 @@
 
 参考[中南开源](https://github.com/CSU-FYT-Vision/FYT2024_vision)，将识别所需的装甲板和灯条属性整合到`type.hpp`文件，即将特征识别与解算甚至将来所需的其他功能共需的类型结合，在把各个功能单需的独立到各自的类，个人认为这样可以使得代码的灵活性与复用性提升。
 
-其次我仅仅是简单完成了`detector.cpp`的一些功能，代码部分还有非常大的可优化空间，下面是一些问题
+其次仅简单完成了`detector.cpp`的一些功能，代码部分还有非常大的可优化空间，下面是一些可被优化的问题
 1. 形态学操作的灵活性不足，即受环境和装甲板距离影响大
 2. 匹配的灯条上下定点易飘，即容易抖动不稳定
   作者留言：这一点经过参考Chenjunnn的开源，得以解决（可重点查看`auto_aim/include/type.hpp`中Light的修改）如果想更进一步了解可以去看[Chenjunnn的开源](https://github.com/chenjunnn/rm_auto_aim?tab=readme-ov-file)。
@@ -114,7 +114,7 @@
 
 ##### 位姿解算 *
 
-此部分的**逻辑和架构**都是参考[同济开源](https://github.com/TongjiSuperPower/sp_vision_25)，**数据来源和方法**参考[Chenjunnn的开源](https://github.com/chenjunnn/rm_auto_aim?tab=readme-ov-file)（但此项目并不需要ROS，因此相机坐标的建立并不同）其他对应的知识可以看[OpenCV教程](https://docs.opencv.org/4.x/dc/d2c/tutorial_real_time_pose.html)
+此部分参考[Chenjunnn的开源](https://github.com/chenjunnn/rm_auto_aim?tab=readme-ov-file)（但此项目并不需要ROS，因此相机坐标的建立并不同）其他对应的知识可以看[OpenCV教程](https://docs.opencv.org/4.x/dc/d2c/tutorial_real_time_pose.html)
 
 相机坐标轴：
 - 原点：相机的光心（镜头中心）
@@ -132,7 +132,7 @@
 ##### 卡尔曼滤波 *
 
 - 需要先学习或了解有关**线性代数**或**矩阵运算**的基本知识
-- 了解卡尔曼滤波及其推导可以看B站博主[DR_CAN](https://www.bilibili.com/video/BV1yV411B7DM?spm_id_from=333.788.videopod.sections)，或者你有更好的建议可以issues
+- 了解卡尔曼滤波及其推导可以看B站博主[DR_CAN](https://www.bilibili.com/video/BV1yV411B7DM?spm_id_from=333.788.videopod.sections)
 
 ###### 重要内容
 
