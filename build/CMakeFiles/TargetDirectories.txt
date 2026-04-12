@@ -1,0 +1,3 @@
+/home/wrt/task_7/task7/build/CMakeFiles/task_7.dir
+/home/wrt/task_7/task7/build/CMakeFiles/edit_cache.dir
+/home/wrt/task_7/task7/build/CMakeFiles/rebuild_cache.dir
