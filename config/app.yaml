@@ -1,0 +1,59 @@
+%YAML:1.0
+---
+camera:
+  device_id: 0
+  width: 1280
+  height: 720
+  fps: 60
+  backend: "auto"
+
+calibration:
+  board_cols: 9
+  board_rows: 6
+  square_size: 0.025
+  image_directory: "data/calibration_images"
+  output_path: "configs/camera_intrinsics.yaml"
+
+detection:
+  enemy_color: "blue"
+  binary_threshold: 150
+  color_threshold: 45
+  min_contour_area: 20
+  morph_width: 3
+  morph_height: 3
+  light_min_ratio: 2.5
+  light_max_ratio: 20.0
+  light_max_angle_deg: 40.0
+  light_max_angle_diff_deg: 12.0
+  light_min_area: 15.0
+  armor_min_small_center_dist: 1.0
+  armor_max_small_center_dist: 4.0
+  armor_min_large_center_dist: 3.6
+  armor_max_large_center_dist: 6.6
+  armor_max_vertical_misalignment_ratio: 0.7
+  armor_max_length_ratio: 1.6
+
+solver:
+  calibration_path: "configs/camera_intrinsics.yaml"
+  small_armor_width: 0.135
+  small_armor_height: 0.055
+  large_armor_width: 0.230
+  large_armor_height: 0.055
+
+tracker:
+  prediction_lead_seconds: 0.03
+  lost_reset_seconds: 0.40
+  process_noise_position: 1e-3
+  process_noise_velocity: 5e-3
+  measurement_noise: 1e-2
+
+serial:
+  enabled: 0
+  port: "COM3"
+  baudrate: 115200
+  timeout_ms: 20
+
+runtime:
+  show_debug: 1
+  draw_binary: 0
+  record_output_path: "output/predictions.csv"
