@@ -16,7 +16,7 @@
 class yolov8 {
 public:
     
-    // int class_num_;  // 装甲板类别数（分类用，不分类则删除）这里我没分类
+    // int class_num_;  // 装甲板类别数（分类用
 
     // 其他成员变量
     ov::Core core_;
@@ -37,7 +37,7 @@ public:
     // 检测函数
     std::list<Armor> detect(const cv::Mat& raw_img, int frame_count);
 
-    // 结果解析函数（私有也可以，看你需求，这里放public方便一点吧）
+    // 结果解析函数
     std::list<Armor> parse(double scale, cv::Mat& output, const cv::Mat& bgr_img, int frame_count);
 
     // 绘制检测框的函数

@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
         cap.cap_.set(CAP_PROP_FRAME_WIDTH, 1280);
         cap.cap_.set(CAP_PROP_FRAME_HEIGHT, 720);
       
-        namedWindow("Original Camera", WINDOW_NORMAL);
+       // namedWindow("Original Camera", WINDOW_NORMAL);
         namedWindow("Detection Result", WINDOW_NORMAL);
         
         Mat frame;
@@ -64,15 +64,15 @@ int main(int argc, char** argv) {
         while (true) {
             
             frame = cap.getFrame();
-            if (frame.empty()) {
-                this_thread::sleep_for(chrono::milliseconds(10));
-                continue;
-            }
+           //if (frame.empty()) {
+           //     this_thread::sleep_for(chrono::milliseconds(10));
+           //     continue;
+           // }
 
             // 图像去畸变
            undistort(frame, right_frame, cap.camera_matrix, cap.dist_coeffs);
 
-            imshow("Original Camera", frame);
+            //imshow("Original Camera", frame);
             
             frame_count++;
             
@@ -85,6 +85,11 @@ int main(int argc, char** argv) {
                     detect_point.x = target_armor.x + target_armor.width / 2.0f;
                     detect_point.y = target_armor.y + target_armor.height / 2.0f;
                     
+                    int predict_x_= static_cast<int>(detect_point.x - armor_w / 2.0f);
+                    int predict_y_= static_cast<int>(detect_point.y - armor_h / 2.0f);
+                    Rect a(predict_x_,predict_y_,armor_w, armor_h);
+                    rectangle(right_frame, , Scalar(0, 0, 255), 2);
+
                     Mat predicted_state = kalman.predict();
                     kalman.correct(detect_point);
                      // 预测效果绘制

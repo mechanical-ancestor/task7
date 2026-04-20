@@ -8,11 +8,11 @@ UsbCamera::~UsbCamera()
     close();
 }
 
-// 🔥 修复这里：加上 V4L2 + 格式 + 分辨率，解决 cwbad conversion
+// 加上 V4L2 + 格式 + 分辨率，解决 cwbad conversion
 bool UsbCamera::open(int camera_id)
 {
      
-    // 强制使用 Linux 原生摄像头驱动（必须加）
+    // 使用 Linux 原生摄像头驱动
    cap_.open(camera_id, cv::CAP_V4L2);
 
     // 强制设置格式和尺寸（解决格式报错）
