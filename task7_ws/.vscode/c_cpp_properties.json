@@ -1,0 +1,36 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include/tools/",
+                "/usr/include/opencv4",
+                "${workspaceFolder}/include/**",
+                "/opt/MVS/include/**",
+                "/usr/include/eigen3",
+                "/opt/intel/openvino_2024/runtime/include/**",
+                "${workspaceFolder}/src/auto_aim",
+                "${workspaceFolder}/src/auto_aim/include",
+                "/opt/ros/humble/include/**",
+                "/opt/ros/humble/include/sensor_msgs",
+                "/opt/ros/humble/include/cv_bridge",
+                "${workspaceFolder}/src/auto_aim/src/auto_aim/**",
+                "${workspaceFolder}/src/auto_aim/src",
+                "/opt/intel/openvino_2024.6.0/runtime/include",
+                "/opt/ros/humble/include/rclcpp",
+                "/opt/ros/humble/include/std_msgs",
+                "${workspaceFolder}/src/auto_aim/include/camera"
+            ],
+            "name": "linux-gcc-x64",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "${default}",
+            "cppStandard": "${default}"
+        }
+    ],
+    "version": 4
+}

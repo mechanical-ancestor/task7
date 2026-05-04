@@ -1,0 +1,12 @@
+YOLO8:
+    xml_path: ../assets/yolo8/best.xml
+    conf_threshold: 0.2
+    iou_threshold: 0.5
+
+serial:
+    baudrate: 9600
+    _file: /dev/pts/4
+
+kf:
+    dt: 0.033
+    

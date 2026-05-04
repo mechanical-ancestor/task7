@@ -41,3 +41,84 @@
 最后将预测结果通过串口发送到另一端（可以是另一台电脑也可以是单片机），只当你与另一端的通信协议成功对上才能正常通信 ([stm32教程](https://www.bilibili.com/video/BV1th411z7sn/?spm_id_from=333.337.search-card.all.click))；
 
 自瞄算法开源参考 ([同济开源](https://github.com/TongjiSuperPower/sp_vision_25)) ([中南开源](https://github.com/CSU-FYT-Vision/FYT2024_vision))。
+
+### <em>1.代码结构</em>
+```
+.
+├── assets            //yolo配置文件
+│   └── yolo8
+├── build
+├── calibration       //相机标定代码
+│   ├── build
+│   ├── calibration.cpp
+│   ├── calibration.hpp
+│   ├── CMakeLists.txt
+│   ├── dataSet
+│   ├── main.cpp
+│   └── result
+├── camera             //相机驱动代码
+│   ├── Hik_Camera.cpp  //海康相机
+│   └── MV_Camera.cpp   //迈德威视
+├── CMakeLists.txt
+├── config
+│   ├── camera.yaml    //相机内参配置文件
+│   └── config.yaml    //主要代码参数配置文件
+├── include            //头文件目录
+│   ├── auto_aim       //自瞄模块集成代码，也是主要实现代码
+│   ├── camera
+│   ├── serial
+│   └── tools
+├── package.xml
+├── serial             //串口外设
+│   └── serial.cpp 
+├── src               //主要源文件
+│   ├── auto_aim      //c++可直接进行make编译的代码
+│   └── ros           //依赖ros环境
+├── tools             //自瞄代码各功能模块的实现目录
+│   ├── filter        //卡尔曼滤波
+│   ├── solverPnP     //pnp算法
+│   └── yolo          //yolo识别
+```
+### <em>2.代码说明</em>
+1.src/auto_aim 包含海康相机，迈德威视以及电脑摄像头的自瞄实现代码
+2.src/ros 包含电脑摄像头的自瞄实现代码以及订阅相机话题**image_raw**实现自瞄的代码模块
+```
+cd src/auto_aim/build
+./auto_aim_cp      #电脑摄像头打开代码
+./auto_aim_camera  #海康相机
+./auto_aim_ MV     #迈德威视
+
+ros2 run auto_aim auto_aim_node    #通用订阅话题进行自瞄模块
+ros2 run auto_aim auto_aim_cp_node #摄像头自瞄模块
+```
+
+
+### <em>3.自瞄实现思路</em>
+1.相机标定获取内参矩阵和畸变系数
+```
+内参矩阵 camera_matrix:
+[fx,0,cx]   fx,fy代表相机焦距
+[0,fy,cy]   cx,cy代表相机中心坐标
+[0, 0, 1]  
+```
+##### 2.训练模型获取.pt在再转换为.xml和.bin用于c++和openVINO推理
+  创建推理模型
+  将输入图像转换为向量形式
+  通过模型得到输出向量
+  在通过解析输出向量得到置信度，rect等信息
+#### 3.将推理获得检测框的中心坐标用于卡尔曼滤波预测
+  用状态转移方程得到先验估计也就是预测值并返回和更新先验协方差
+  得到观测值计算卡尔曼增益以及后验估计作为最优结果
+  更新后验证协方差
+#### 4.将预测结果通过pnp算法发送给串口
+   获取相机参数
+   获取装甲版平面各个角点的三维坐标
+   利用预测得到的中心坐标获取四个角点的二维平面坐标
+   用cv::solvePnP得到平移向量和旋转向量
+
+### <em>4.代码存在问题</em>
+1.推理结果存在误检，且误检率较高
+2.模型的检测框与装甲板的重合效果并不是太好，存在一定的偏差
+3.模型识别的最大距离大概为0.6m，效果较差，难以满足需求
+4.相机驱动代码未经历实践，尚不清楚存在的问题
+5.标定代码存在可能无法识别棋盘角点的错误导致标失败
