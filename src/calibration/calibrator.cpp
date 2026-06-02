@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <iostream>
 #include <vector>
 
 namespace task7::calibration {
@@ -59,10 +60,10 @@ bool calibrateFromDirectory(
         return false;
     }
 
-    const cv::Size board_size(settings.board_cols, settings.board_rows);
+    const cv::Size board_size(settings.board_cols - 1, settings.board_rows - 1);
     const std::vector<cv::Point3f> model = chessboardModel(
-        settings.board_cols,
-        settings.board_rows,
+        settings.board_cols - 1,
+        settings.board_rows - 1,
         settings.square_size);
 
     std::vector<std::vector<cv::Point2f>> image_points;
@@ -80,13 +81,28 @@ bool calibrateFromDirectory(
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
 
         std::vector<cv::Point2f> corners;
-        const bool found = cv::findChessboardCorners(
+        bool found = cv::findChessboardCorners(
             gray,
             board_size,
             corners,
             cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 
+#if CV_VERSION_MAJOR >= 4
         if (!found) {
+            found = cv::findChessboardCornersSB(
+                gray,
+                board_size,
+                corners,
+                cv::CALIB_CB_NORMALIZE_IMAGE | cv::CALIB_CB_EXHAUSTIVE | cv::CALIB_CB_ACCURACY);
+        }
+#endif
+
+        if (!found) {
+            std::cout << "[calibrate] rejected, no corners: " << image_path.filename().string() << '\n';
+            continue;
+        }
+        if (corners.size() != model.size()) {
+            std::cout << "[calibrate] rejected, corner count mismatch: " << image_path.filename().string() << '\n';
             continue;
         }
 
@@ -99,6 +115,7 @@ bool calibrateFromDirectory(
 
         image_points.push_back(corners);
         object_points.push_back(model);
+        std::cout << "[calibrate] accepted: " << image_path.filename().string() << '\n';
     }
 
     if (image_points.size() < 8) {

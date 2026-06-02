@@ -1,2 +1,0 @@
-/usr/bin/ar qc libtask7_core.a CMakeFiles/task7_core.dir/src/auto_aim/detector.cpp.o CMakeFiles/task7_core.dir/src/auto_aim/pnp_solver.cpp.o CMakeFiles/task7_core.dir/src/auto_aim/kalman_tracker.cpp.o CMakeFiles/task7_core.dir/src/calibration/chessboard_calibrator.cpp.o CMakeFiles/task7_core.dir/src/calibration/chessboard_capture.cpp.o CMakeFiles/task7_core.dir/src/config/settings.cpp.o CMakeFiles/task7_core.dir/src/io/usb_camera.cpp.o CMakeFiles/task7_core.dir/src/io/serial_port.cpp.o
-/usr/bin/ranlib libtask7_core.a

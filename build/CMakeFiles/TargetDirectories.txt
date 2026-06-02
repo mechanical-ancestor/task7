@@ -1,4 +1,0 @@
-/home/violet/task7/build/CMakeFiles/task7_core.dir
-/home/violet/task7/build/CMakeFiles/task7_main.dir
-/home/violet/task7/build/CMakeFiles/edit_cache.dir
-/home/violet/task7/build/CMakeFiles/rebuild_cache.dir

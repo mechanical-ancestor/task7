@@ -1,5 +1,4 @@
 %YAML:1.0
----
 camera:
   device_id: 0
   width: 1280
@@ -12,7 +11,7 @@ calibration:
   board_rows: 6
   square_size: 0.025
   image_directory: "data/calibration_images"
-  output_path: "configs/camera_intrinsics.yaml"
+  output_path: "config/camera.yaml"
 
 detection:
   enemy_color: "blue"
@@ -34,7 +33,7 @@ detection:
   armor_max_length_ratio: 1.6
 
 solver:
-  calibration_path: "configs/camera_intrinsics.yaml"
+  calibration_path: "config/camera.yaml"
   small_armor_width: 0.135
   small_armor_height: 0.055
   large_armor_width: 0.230
@@ -49,7 +48,7 @@ tracker:
 
 serial:
   enabled: 0
-  port: "COM3"
+  port: "/dev/ttyUSB0"
   baudrate: 115200
   timeout_ms: 20
 

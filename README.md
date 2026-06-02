@@ -45,9 +45,9 @@
 ```
 task7/
 ├── CMakeLists.txt                 # 构建配置
-├── configs/
-│   ├── task7.yaml                 # 主配置文件
-│   └── camera_intrinsics.yaml     # 相机内参（由标定生成）
+├── config/
+│   ├── app.yaml                   # 主配置文件
+│   └── camera.yaml                # 相机内参（由标定生成）
 ├── include/task7/
 │   ├── auto_aim/                  # 检测/解算/跟踪
 │   ├── calibration/               # 标定模块
@@ -61,43 +61,52 @@ task7/
 │   └── io/                        # I/O模块
 ├── data/
 │   └── calibration_images/        # 棋盘格图像目录
-├── output/
-│   └── predictions.csv            # 预测结果输出
-└── docs/                          # 文档目录
+└── output/
+    └── predictions.csv            # 预测结果输出
 ```
 
-## 使用指南
+## 构建
+
+```bash
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+```
+
+依赖：OpenCV 4.x（需包含 core、imgproc、highgui、videoio、calib3d、imgcodecs、video 模块）、CMake 3.16+、C++17 编译器。
 
 ### 相机标定
 
 **Step 1: 采集棋盘格图像**
 
 ```bash
-./build/task7_main capture --config configs/task7.yaml
+./build/task7_main capture --config config/app.yaml
 ```
 
 操作说明：
-- 将 9×6 棋盘格（方格大小 25mm）放到相机画面中
+- 将 9×6 棋盘格（方格大小 25mm）放到相机画面中，**确保完整棋盘格在画面内可见**
 - 检测到角点后按 **`c`** 保存当前帧
 - 采集 **至少 8 张** 不同角度和距离的图片
 - 按 **`q`** 或 **`Esc`** 退出
+
+> **棋盘格尺寸说明：** 9×6 指方格数，OpenCV 使用内角点数（8×5）。配置文件中的 `board_cols=9, board_rows=6` 指方格数，代码内部会自动转换为内角点数。
 
 图片自动保存到 `data/calibration_images/`。
 
 **Step 2: 运行标定**
 
 ```bash
-./build/task7_main calibrate --config configs/task7.yaml
+./build/task7_main calibrate --config config/app.yaml
 ```
 
-标定完成后输出 `configs/camera_intrinsics.yaml`，包含相机内参矩阵和畸变系数。
+标定完成后输出 `config/camera.yaml`，包含相机内参矩阵和畸变系数。
 
-> ⚠️ **注意：** 当前 `camera_intrinsics.yaml` 中的是示例数据，上机时需要用自己的相机重新标定。
+> ⚠️ **注意：** 标定质量直接影响自瞄精度。RMS 应尽量小于 0.5，光心应接近画面中心。采集时确保棋盘格覆盖画面四角和不同距离/角度。
 
 ### 自动瞄准模式
 
 ```bash
-./build/task7_main autoaim --config configs/task7.yaml
+./build/task7_main autoaim --config config/app.yaml
 ```
 
 **完整流程：**
@@ -119,7 +128,7 @@ task7/
   calibrate       运行相机标定
 
 选项:
-  --config PATH   指定配置文件路径（默认 configs/task7.yaml）
+  --config PATH   指定配置文件路径（默认 config/app.yaml）
   --camera ID     指定相机设备 ID（覆盖配置文件设置）
   --no-serial     禁用串口发送
   --help, -h      显示帮助信息
@@ -127,7 +136,7 @@ task7/
 
 ## 配置说明
 
-主配置文件 `configs/task7.yaml` 包含以下配置项：
+主配置文件 `config/app.yaml` 包含以下配置项：
 
 ### 相机设置
 
@@ -146,19 +155,26 @@ task7/
 | `enemy_color` | "blue" | 敌方颜色 red/blue |
 | `binary_threshold` | 150 | 亮度二值化阈值 |
 | `color_threshold` | 45 | 颜色阈值 |
+| `min_contour_area` | 20 | 最小轮廓面积 |
+| `morph_width` | 3 | 形态学闭运算核宽度 |
+| `morph_height` | 3 | 形态学闭运算核高度 |
 | `light_min_ratio` | 2.5 | 灯条最小长宽比 |
 | `light_max_ratio` | 20.0 | 灯条最大长宽比 |
 | `light_max_angle_deg` | 40.0 | 灯条最大倾斜角 |
+| `light_max_angle_diff_deg` | 12.0 | 灯条对最大角度差 |
+| `light_min_area` | 15.0 | 灯条最小面积 |
+| `armor_max_length_ratio` | 1.6 | 最大灯条长度比 |
 | `armor_min_small_center_dist` | 1.0 | 小装甲板中心距下限 |
 | `armor_max_small_center_dist` | 4.0 | 小装甲板中心距上限 |
 | `armor_min_large_center_dist` | 3.6 | 大装甲板中心距下限 |
 | `armor_max_large_center_dist` | 6.6 | 大装甲板中心距上限 |
+| `armor_max_vertical_misalignment_ratio` | 0.7 | 最大垂直错位比 |
 
 ### PnP 解算设置
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `calibration_path` | configs/camera_intrinsics.yaml | 标定文件路径 |
+| `calibration_path` | config/camera.yaml | 标定文件路径 |
 | `small_armor_width` | 0.135 | 小装甲板宽度（米） |
 | `small_armor_height` | 0.055 | 小装甲板高度（米） |
 | `large_armor_width` | 0.230 | 大装甲板宽度（米） |
@@ -181,6 +197,25 @@ task7/
 | `enabled` | 0 | 是否启用串口 |
 | `port` | /dev/ttyUSB0 | 串口设备路径 |
 | `baudrate` | 115200 | 波特率 |
+| `timeout_ms` | 20 | 超时时间（毫秒） |
+
+### 标定设置
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `board_cols` | 9 | 棋盘格方格列数 |
+| `board_rows` | 6 | 棋盘格方格行数 |
+| `square_size` | 0.025 | 方格大小（米） |
+| `image_directory` | data/calibration_images | 标定图像路径 |
+| `output_path` | config/camera.yaml | 标定结果输出路径 |
+
+### 运行时设置
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `show_debug` | 1 | 是否显示调试窗口 |
+| `draw_binary` | 0 | 是否绘制二值图 |
+| `record_output_path` | output/predictions.csv | 预测结果保存路径 |
 
 ## 输出格式
 
@@ -210,4 +245,3 @@ pred,pred_x,pred_y,pred_z,meas,meas_x,meas_y,meas_z
 - **状态向量:** `[x, y, z, vx, vy, vz]`
 - **测量向量:** `[x, y, z]`
 - **模型:** 常速度模型
-
